@@ -4,4 +4,4 @@
 
 Original source code may be downloaded from [Netlib](http://www.netlib.org/toms/675.gz).
 
-This software is subject to the [ACM Software License Agreement](https://www.acm.org/publications/policies/software-copyright-notice).
+Use of this algorithm is subject to the [ACM Software License Agreement](https://www.acm.org/publications/policies/software-copyright-notice).
