@@ -116,7 +116,6 @@ C
             CALL F06FUF(IN, WRK(I,PM1), LDW, DZ1, WRK(J,I), WRK(J,PM1),
      *                  LDW)
   180    CONTINUE
-C        CALL DTRCO(WRK, LDW, P, RCOND, WRK(1,PNM), 0)
          CALL DTRCON('1','L','N',P,WRK,LDW,RCOND,WORK,IWORK,INFO)
          IF (RCOND .LT. TOL) WITHK = .FALSE.
   200 CONTINUE

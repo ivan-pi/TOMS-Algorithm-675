@@ -130,7 +130,6 @@ C
             CALL F06FUF(N+P-I, WRK(M+I+1,M+I), 1, DZ1, WRK(M+I,M+I+J),
      *                  WRK(M+I+1,M+I+J), 1)
   240    CONTINUE
-C         CALL DTRCO(WRK(M+1,M+1), LDW, N, RCOND, WRK(M+1,1), 1)
          CALL DTRCON('1','U','N',N,WRK(M+1,M+1),LDW,RCOND,WORK,
      *               IWORK,INFO)
          IF (RCOND .LT. TOL) WITHX = .FALSE.
