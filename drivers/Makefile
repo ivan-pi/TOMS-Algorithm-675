@@ -1,5 +1,5 @@
 CPPFLAGS += -I../..
-LDFLAGS += -L../ -ltoms675 -lblas
+LDFLAGS += -L../src -ltoms675 -lblas
 
 PROGS_SRC = COHESS_DRIVER.F \
 			OBHESS_DRIVER.F \
@@ -8,7 +8,7 @@ PROGS_SRC = COHESS_DRIVER.F \
 			SRIF_DRIVER.F \
 			SRIFCO_DRIVER.F
 
-OBJS = $(PROGS_SRC:.f90=.o)
+OBJS = $(PROGS_SRC:.F=.o)
 PROGS = $(OBJS:.o=)
 TESTPROGS = $(PROGS:=TEST)
 

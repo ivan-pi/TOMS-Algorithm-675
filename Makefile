@@ -1,5 +1,6 @@
 FC = gfortran
-FFLAGS = -Wall -Wextra -Wimplicit-interface -fPIC -g -fcheck=all
+# FFLAGS = -Wall -Wextra -Wimplicit-interface -fPIC -g -fcheck=all
+FFLAGS = -Wall -O3
 FLFLAGS =
 
 export FC

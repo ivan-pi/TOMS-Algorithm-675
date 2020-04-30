@@ -1,3 +1,5 @@
+FFLAGS += -std=legacy
+
 SRC = DTRCO.F \
 	  F06BMF.F \
 	  F06FBF.F \
