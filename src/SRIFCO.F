@@ -13,10 +13,12 @@ C     CONTRIBUTORS:
 C
 C     M. Vanbegin, P. Van Dooren (PRLB)
 C     M. Verhaegen (NASA Ames)
+C     I. Pribec (TUM)
 C
 C     REVISIONS:
 C
 C     1988, Sept. 9.
+C     2020, Apr. 30.: Replaced DTRCO (LINPACK) with DTRCON (LAPACK)
 C
 C     Specification of parameters.
 C
@@ -34,7 +36,7 @@ C
 C
 C     EXTERNAL SUBROUTINES:
 C
-C     DTRCO from LINPACK
+C     DTRCON from LAPACK
 C     DTRMV, DTRSV from Extended-BLAS,
 C     F06FBF, F06FSF, F06FUF from NAG-BLAS,
 C     DAXPY, DCOPY from BLAS.
@@ -43,6 +45,8 @@ C     Local variables.
 C
       INTEGER I, I1, IN, J, MI, MI1, MINMP, MN1, MP1, MNP
       DOUBLE PRECISION DZ1, RCOND
+      INTEGER IWORK(N), INFO
+      DOUBLE PRECISION WORK(3*N)
 C
 C     Construction of the pre-array WRK.
 C
@@ -125,7 +129,9 @@ C
             CALL F06FUF(MINMP, WRK(MI1,MI), 1, DZ1, WRK(MI,J),
      *                WRK(MI1,J), 1)
   260    CONTINUE
-         CALL DTRCO(WRK(M+1,M+1), LDW, N, RCOND, WRK(M+1,1), 1)
+C         CALL DTRCO(WRK(M+1,M+1), LDW, N, RCOND, WRK(M+1,1), 1)
+         CALL DTRCON('1','U','N',N,WRK(M+1,M+1),LDW,RCOND,WORK,
+     *               IWORK,INFO)
          IF (RCOND .LT. TOL) WITHX = .FALSE.
   280 CONTINUE
 C

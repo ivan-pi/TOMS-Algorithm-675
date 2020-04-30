@@ -1,5 +1,5 @@
-CPPFLAGS += -I../..
-LDFLAGS += -L../src -ltoms675 -lblas
+CPPFLAGS += -I../src
+LDFLAGS += -L../src -ltoms675 -lblas -llapack
 
 PROGS_SRC = COHESS_DRIVER.F \
 			OBHESS_DRIVER.F \
