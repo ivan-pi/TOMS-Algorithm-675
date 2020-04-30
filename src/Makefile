@@ -1,0 +1,55 @@
+SRC = DTRCO.F \
+	  F06BMF.F \
+	  F06FBF.F \
+	  F06FJF.F \
+	  F06FSF.F \
+	  F06FUF.F \
+	  F06PAF.F \
+	  F06PFF.F \
+	  F06PJF.F \
+	  COHESS.F \
+	  OBHESS.F \
+	  PRMT.F \
+	  SRCF.F \
+	  SRIF.F \
+	  SRCFOB.F \
+	  SRIFCO.F
+
+LIB = libtoms675.a
+
+OBJS = $(SRC:.F=.o)
+MODS = $(OBJS:.o=.mod)
+SMODS = $(OBJS:.o=*.smod)
+
+.PHONY: all clean
+
+all: $(LIB)
+
+$(LIB): $(OBJS)
+	ar rcs $@ $(OBJS)
+
+clean:
+	$(RM) $(LIB) $(OBJS) $(MODS) $(SMODS)
+
+%.o: %.F
+	$(FC) $(FFLAGS) -c $<
+%.o: %.f90
+	$(FC) $(FFLAGS) -c $<
+
+# Filter routine dependencies
+#SRCF.o: DTRCO.o DGEMV.o DTRSV.o F06FBF.o F06FUF.o F06FSF.o
+#SRIF.o: DTRCO.o DGEMV.o DTRMV.o DTRSV.o F06FBF.o F06FSF.o F06FUF.o
+SRCF.o: DTRCO.o F06PAF.o F06PJF.o F06FBF.o F06FUF.o F06FSF.o
+SRIF.o: DTRCO.o F06PAF.o F06PFF.o F06PJF.o F06FBF.o F06FSF.o F06FUF.o
+
+#SRCFOB.o: DTRCO.o DGEMV.o DTRSV.o F06FBF.o F06FSF.o F06FUF.o
+#SRIFCO.o: DTRCO.o DTRMV.o DTRSV.o F06FBF.o F06FSF.o F06FUF.o
+SRCFOB.o: DTRCO.o F06PAF.o F06PJF.o F06FBF.o F06FSF.o F06FUF.o
+SRIFCO.o: DTRCO.o F06PFF.o F06PJF.o F06FBF.o F06FSF.o F06FUF.o
+
+# Condensed form routines
+OBHESS.o: F06FSF.o F06FUF.o
+COHESS.o: F06FSF.o F06FUF.o
+
+# NAG-BLAS
+F06FSF.o: F06BMF.o F06FJF.o
