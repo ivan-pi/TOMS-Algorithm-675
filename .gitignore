@@ -36,3 +36,6 @@
 
 # Emacs backup files
 *~
+
+# Figures
+*.png
