@@ -4,12 +4,9 @@ For details see
 
 > Vanbegin, M., & Verhaegen, M. (1989). Algorithm 675: FORTRAN subroutines for computing the square root covariance filter and square root information filter in dense or Hessenberg forms. _ACM Transactions on Mathematical Software (TOMS)_, 15(3), 243-256. doi:[10.1145/66888.69647](https://doi.org/10.1145/66888.69647)
 
-Original source code may be downloaded from [Netlib](http://www.netlib.org/toms/675.gz).
+For a PDF version of this article (available free of charge) click [here](https://dl.acm.org/doi/pdf/10.1145/66888.69647). The original source code can be downloaded from [Netlib](http://www.netlib.org/toms/).
 
-Use of this algorithm is subject to the [ACM Software License Agreement](https://www.acm.org/publications/policies/software-copyright-notice).
-
-TODO:
-* Replace LINPACK routine `dtrco` with LAPACK routine `dtrcon`
+The code available here contains some minor modifications and is *not* the original Software. Use of this code is still subject to the [ACM Software License Agreement](https://www.acm.org/publications/policies/software-copyright-notice). This grants the right to execute, copy, modify and distribute both the binary and source code solely for academic, research and other similar noncommercial uses. See the [LICENSE](./LICENSE) document for the remaining conditions. New additions are provided under terms of the permissive MIT License.
 
 ## Routines
 
@@ -120,3 +117,6 @@ with parameters as follows (those preceded by an asterisk are altered by the rou
 * `upper`: Logical variable equal to `.true.` when upper Hessenberg is requested and `.false.` when lower Hessenberg is requested.
 
 
+## Differences from the original software
+
+1. In routines `srcf`, `srcfob`, `srif`, and `srifco` the calls to the LINPACK routine `dtrco` (reciprocal condition number calculation) have been replaced with calls to the LAPACK routine `dtrcon`.
