@@ -11,8 +11,7 @@ set xrange [0:0.5]
 
 set xlabel "x (mm)"
 set ylabel "Moisture"
-plot filename(i) using ($1*1000):2 with l lw 2 notitle,\
-    filenamef(i) using ($1*1000):2 with p pt 7 notitle
+plot filename(i) using ($1*1000):2 with l lw 2 notitle
 
 set yrange [0:1]
 set xrange [0:5]

@@ -167,7 +167,6 @@ contains
     do i = 1, n
       print *, wrk(i,:)
     end do
-    print *,
 
 !
 !   Output S.
@@ -253,67 +252,71 @@ contains
   end subroutine
 end module
 
-program test_prediction
+! program test_prediction
 
-  use toms675, only: dp, one_step_prediction
-  implicit none
+!   use toms675, only: dp, one_step_prediction
+!   implicit none
 
-  real(dp) :: a(2,2), p(2,2), b(2,2), q(2,2), sol(2,2), c(2,2), r(2,2)
-  logical :: multbq
-  real(dp) :: tol
-  integer :: info, i
+!   real(dp) :: a(2,2), p(2,2), b(2,2), q(2,2), sol(2,2), c(2,2), r(2,2)
+!   logical :: multbq
+!   real(dp) :: tol
+!   integer :: info, i
 
-  tol = epsilon(tol)
+!   tol = epsilon(tol)
 
-  p = 0
-  p(1,1) = 1
-  p(2,2) = 1
-  do i = 1, 2
-    print *, p(i,:)
-  end do
+!   p = 0
+!   p(1,1) = 1
+!   p(2,2) = 1
+!   do i = 1, 2
+!     print *, p(i,:)
+!   end do
 
-  a = reshape([1.0_dp,0.0_dp,0.01_dp,1.0_dp],[2,2])
-  b = reshape([1,0,0,1],[2,2])
-  q = reshape([0.001_dp,0.0_dp,0.0_dp,0.0001_dp],[2,2])
+!   a = reshape([1.0_dp,0.0_dp,0.01_dp,1.0_dp],[2,2])
+!   b = reshape([1,0,0,1],[2,2])
+!   q = reshape([0.001_dp,0.0_dp,0.0_dp,0.0001_dp],[2,2])
 
-  sol = matmul(a,matmul(p,transpose(a))) + matmul(b,matmul(q,transpose(b)))
+!   sol = matmul(a,matmul(p,transpose(a))) + matmul(b,matmul(q,transpose(b)))
 
-  call dpotrf('L',2,sol,2,info)
-  if (info > 0) then
-    write(*,*) "sol is not positive definite"
-    error stop
-  end if
-  print *, "sol = "
-  do i = 1, 2
-    print *, sol(i,:)
-  end do
-  sol(1,2) = 0.0_dp
-  sol = matmul(sol,transpose(sol))
-  do i = 1, 2
-    print *, sol(i,:)
-  end do
+!   call dpotrf('L',2,sol,2,info)
+!   if (info > 0) then
+!     write(*,*) "sol is not positive definite"
+!     error stop
+!   end if
+!   print *, "sol = "
+!   do i = 1, 2
+!     print *, sol(i,:)
+!   end do
+!   sol(1,2) = 0.0_dp
+!   sol = matmul(sol,transpose(sol))
+!   do i = 1, 2
+!     print *, sol(i,:)
+!   end do
 
-  call dpotrf('L',2,p,2,info)
-  if (info > 0) then
-    write(*,*) "P is not positive definite"
-    error stop
-  end if
-  call dpotrf('L',2,q,2,info)
-  if (info > 0) then
-    write(*,*) "q is not positive definite"
-    error stop
-  end if
-  multbq = .false.
-  call one_step_prediction(p,2,a,2,b,2,q,2,2,2,multbq,tol)
-  do i = 1, 2
-    print *, p(i,:)
-  end do
+!   call dpotrf('L',2,p,2,info)
+!   if (info > 0) then
+!     write(*,*) "P is not positive definite"
+!     error stop
+!   end if
+!   call dpotrf('L',2,q,2,info)
+!   if (info > 0) then
+!     write(*,*) "q is not positive definite"
+!     error stop
+!   end if
+!   multbq = .false.
+!   call one_step_prediction(p,2,a,2,b,2,q,2,2,2,multbq,tol)
+!   do i = 1, 2
+!     print *, p(i,:)
+!   end do
 
-  p = matmul(p,transpose(p))
-  do i = 1, 2
-    print *, p(i,:)
-  end do
-end program
+!   p = matmul(p,transpose(p))
+!   do i = 1, 2
+!     print *, p(i,:)
+!   end do
+! end program
+
+
+
+
 
 ! program test_chol
 

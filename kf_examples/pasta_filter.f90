@@ -185,8 +185,6 @@ contains
                     write(funit1,*) (i-1)*dx, uold(i)
                 end do
                 close(funit1)
-            end if
-
             ! trapezoidal integration
             trapz = 0
             do i = 1, n-1
@@ -197,6 +195,10 @@ contains
             tflux = k*A*(rinf_ - rs)
             write(funit2,*) step, step*dt, uold(n), rs, aw, tflux, rh, ltemp, trapz
             nmeas = nmeas + 1
+
+            end if
+
+
 
 
             utmp => unew
@@ -540,9 +542,9 @@ program run_pasta_filter
     u = 0.45_wp
     u0 = u
 
-    tend = 5*60*60._wp/10
-    nsteps = 100000
-    nout = 100
+    tend = 5*60*60._wp
+    nsteps = 1000000
+    nout = 1000
     D = 1.1e-11_wp
     k = 0.0001_wp
     A = 100._wp
@@ -553,7 +555,7 @@ program run_pasta_filter
 
     call perform_measurements(u,tend,nsteps,nout,D,k,A,nmeas=nmeas)
 
-    call perform_filtering(nmeas,u0,tend,nsteps,nout,D,k,A)
+    ! call perform_filtering(nmeas,u0,tend,nsteps,nout,D,k,A)
 
 
 end program

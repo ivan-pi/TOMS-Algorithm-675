@@ -14,8 +14,8 @@ fluxfile = "mflux.out"
 name(n)=sprintf("img%05d.png",n)
 
 i=0
-istep=100
-k=100001
+istep=1000
+k=1000001
 dt = 1.8e-2
 
 load "loop.plt"
