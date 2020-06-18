@@ -1,6 +1,7 @@
 module pasta_filter
 
-    use toms675, only: srcf, prmt
+    use toms675, only: srcf, prmt, &
+        one_step_prediction
     use iso_fortran_env, only: stdout => output_unit
 
     implicit none
@@ -237,15 +238,15 @@ contains
         real(wp), intent(in) :: D, k, area
         real(wp), intent(in), optional :: rinf
 
-        real(wp), allocatable :: xf(:), xhat(:)
+        real(wp), allocatable :: xf(:), xhat(:), xcorr(:)
         real(wp), allocatable :: J(:,:), H(:,:), B(:,:), P(:,:), Q(:,:), R(:,:)
-        real(wp), allocatable :: zmeas(:,:), zm(:), Kgain(:,:)
+        real(wp), allocatable :: zmeas(:,:), zm(:), Kgain(:,:), resid(:)
         real(wp), allocatable :: wrk(:,:)
         integer :: n, np1, lwrk, nw
 
         real(wp) :: fct,dt,dx, aw, daw
         real(wp) :: step_dt, uold, rs, tflux, rh, ltemp, trapz, psat, tol, rinf_
-        integer :: funit1, funit2, step, i, info
+        integer :: funit1, funit2, step, i, info, meas
         character(len=20) :: fname1 = "mprof", fname2, num
         logical :: withk, multbq
         real(wp) :: local_temp, local_temp_K
@@ -260,8 +261,8 @@ contains
         allocate(zmeas(nmeas,2))
         do i = 1, nmeas
             read(funit2,*) step, step_dt, uold, rs, aw, tflux, rh, ltemp, trapz
-            zmeas(i,1) = uold + 0.02*random_normal()
-            zmeas(i,2) = tflux! + 2.e-6*random_normal()
+            zmeas(i,1) = uold + 0.001*random_normal()
+            zmeas(i,2) = tflux + 2.e-8*random_normal()
         end do
 
         close(funit2)
@@ -281,8 +282,8 @@ contains
         np1 = n + 1
         nw = np1 + 2 + 3
         lwrk = np1 + 2
-        allocate(xf(np1),xhat(np1),P(np1,np1),J(np1,np1),H(2,np1),&
-            B(np1,2),Q(2,2),R(2,2),Kgain(np1,2),wrk(lwrk,nw),zm(2))
+        allocate(xf(np1),xhat(np1),xcorr(np1), P(np1,np1),J(np1,np1),H(2,np1),&
+            B(np1,2),Q(2,2),R(2,2),Kgain(np1,2),wrk(lwrk,nw),zm(2),resid(2))
 
         !
         ! Kalman filter settings
@@ -312,7 +313,7 @@ contains
         !
         xf(1:n) = u0
         do i = 1, n
-            xf(i) = xf(i)! + 0.005_wp*random_normal()
+            xf(i) = xf(i) + 0.001_wp*random_normal()
         end do
 
         ! Estimate initial surface humidity
@@ -331,7 +332,7 @@ contains
         end if
 
         ! Initial convection coefficient (supply a known or estimated value)
-        xf(np1) = k
+        xf(np1) = 0.000!k
 
         !
         ! Prepare the Jacobian matrix
@@ -386,7 +387,8 @@ contains
         ! Covariance matrix
         !===================
         ! P = matmul(J,matmul(eye(np1),transpose(J)))
-        P = 0.001*eye(np1)
+        P = 0.001_wp*eye(np1)
+        P(np1,np1) = 1.0_wp
 
         call dpotrf('L',np1,P,np1,info)
         if (info > 0) then
@@ -403,32 +405,30 @@ contains
         B(np1,2) = 1
 
         Q = 0
-        Q(1,1) = 0.0000001 ! diffusion noise
-        Q(2,2) = 0.00001 ! k noise
-        Q(1,2) = 0.00000003
-        Q(2,1) = 0.00000003
+        Q(1,1) = 0.00000001 ! diffusion noise
+        Q(2,2) = 0.0000001 ! k noise
 
-        call PRMT(Q, 2, 2, 2," Q = ", stdout, 2)
+        ! call PRMT(Q, 2, 2, 2," Q = ", stdout, 2)
         call dpotrf('L',2,Q,2,info)
         if (info > 0) then
           write(*,*) "Q is not positive definite"
           error stop
         end if
 
-        Q(1,2) = 0.0_wp
+        ! Q(1,2) = 0.0_wp
 
-        call PRMT(Q, 2, 2, 2," Q = ", stdout, 2)
+        ! call PRMT(Q, 2, 2, 2," Q = ", stdout, 2)
 
-        Q = matmul(Q,transpose(Q))
-        call PRMT(Q, 2, 2, 2," Q = ", stdout, 2)
-        stop
+        ! Q = matmul(Q,transpose(Q))
+        ! call PRMT(Q, 2, 2, 2," Q = ", stdout, 2)
+        ! stop
 
         !====================
         ! Observation noise matrix
         !====================
         R = 0
-        R(1,1) = 0.04
-        R(2,2) = 0.000001
+        R(1,1) = 0.001
+        R(2,2) = 0.001
         
         call dpotrf('L',2,R,2,info)
         if (info > 0) then
@@ -441,8 +441,10 @@ contains
         !
         H = 0
         H(1,n) = 1
+        
+        meas = 1
 
-        do step = 0, nsteps-1
+        do step = 0, nsteps
 
             ! Calculate surface humidity
             if (present(rinf)) then
@@ -487,19 +489,44 @@ contains
             H(2,n) = xhat(np1)*area*daw
             H(2,np1) = area*(rinf_ - rs)
 
-            ! Calculate Kalman gain
-            withk = .true.
-            call srcf(P,np1,J,np1,B,np1,Q,2,H,2,R,2,np1,2,2,Kgain,np1,wrk,lwrk,multbq,withk,tol)
-            if (.not. withk) then
-                print *, step, "Nearly singular matrix in srcf"
-            end if
-
             ! Predicted measurements z = h(x)
             zm(1) = xhat(n)                            ! surface concentration
             zm(2) = xhat(np1)*area*(rinf_ - rs) ! total surface flux
 
-            ! Updated state from Kalman gain
-            xf = xhat - matmul(Kgain,zm-zmeas(step+1,:))
+
+            if (mod(step,nout) == 0) then
+                ! Measurement step
+
+                ! Calculate Kalman gain
+                withk = .true.
+                call srcf(P,np1,J,np1,B,np1,Q,2,H,2,R,2,np1,2,2,Kgain,np1,wrk,lwrk,multbq,withk,tol)
+
+                ! Updated state from Kalman gain
+                if (withk) then
+                    resid = zmeas(meas,:) - zm
+                    xcorr = matmul(Kgain,resid)
+                    xf = xhat + xcorr
+                else
+                    print *, step, "Nearly singular matrix in srcf"
+                end if
+                
+                write(num,'(I0.8)') step
+                open(newunit=funit1,file=trim(fname1)//trim(num)//"_filtered.out")
+                do i = 1, n
+                    write(funit1,*) (i-1)*dx, xf(i), xcorr(i)
+                end do
+                close(funit1)
+                write(funit2,*) step, step*dt, zm(1), zm(2), zmeas(meas,1), zmeas(meas,2), xf(np1)
+                
+                meas = meas + 1
+
+            else
+                ! Evolve Covariance
+                call one_step_prediction(P,np1,J,np1,B,np1,Q,2,np1,2,multbq,tol)
+                
+                ! Copy predicted values
+                xf = xhat
+            end if
 
             ! if (maxval(abs(Kgain)) > 0) then
             !     print *, maxval(Kgain), minval(Kgain)
@@ -507,17 +534,6 @@ contains
             ! print *, Kgain(np1,:), dot_product(Kgain(np1,:),zm-zmeas(step+1,:))
             ! print *, step, zm-zmeas(step+1,:), Kgain(n,:), maxval(Kgain(:,1))
             ! xf = xhat
-
-            if (mod(step,nout)==0) then
-                write(num,'(I0.8)') step
-                open(newunit=funit1,file=trim(fname1)//trim(num)//"_filtered.out")
-                do i = 1, n
-                    write(funit1,*) (i-1)*dx, xf(i)
-                end do
-                close(funit1)
-            end if
-
-            write(funit2,*) step, step*dt, zm(1), zm(2), zmeas(step+1,1), zmeas(step+1,2), xf(np1)
 
         end do
 
@@ -542,8 +558,8 @@ program run_pasta_filter
     u = 0.45_wp
     u0 = u
 
-    tend = 5*60*60._wp
-    nsteps = 1000000
+    tend = 5*60*60._wp/10*2
+    nsteps = 200000
     nout = 1000
     D = 1.1e-11_wp
     k = 0.0001_wp
@@ -555,7 +571,7 @@ program run_pasta_filter
 
     call perform_measurements(u,tend,nsteps,nout,D,k,A,nmeas=nmeas)
 
-    ! call perform_filtering(nmeas,u0,tend,nsteps,nout,D,k,A)
+    call perform_filtering(nmeas,u0,tend,nsteps,nout,D,k,A)
 
 
 end program

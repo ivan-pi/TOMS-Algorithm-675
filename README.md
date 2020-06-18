@@ -1,12 +1,11 @@
 # Algorithm 675: Fortran subroutines for computing the square root covariance filter and square root information filter in dense or Hessenberg forms
 
-For details see
+For the original description please refer to
+* Vanbegin, M., & Verhaegen, M. (1989). Algorithm 675: FORTRAN subroutines for computing the square root covariance filter and square root information filter in dense or Hessenberg forms. _ACM Transactions on Mathematical Software (TOMS)_, 15(3), 243-256. doi:[10.1145/66888.69647](https://doi.org/10.1145/66888.69647)
 
-> Vanbegin, M., & Verhaegen, M. (1989). Algorithm 675: FORTRAN subroutines for computing the square root covariance filter and square root information filter in dense or Hessenberg forms. _ACM Transactions on Mathematical Software (TOMS)_, 15(3), 243-256. doi:[10.1145/66888.69647](https://doi.org/10.1145/66888.69647)
+A PDF version of the original article free of charge is available [here](https://dl.acm.org/doi/pdf/10.1145/66888.69647). The original source code can be downloaded from [Netlib](http://www.netlib.org/toms/).
 
-For a PDF version of this article (available free of charge) click [here](https://dl.acm.org/doi/pdf/10.1145/66888.69647). The original source code can be downloaded from [Netlib](http://www.netlib.org/toms/).
-
-The code available here contains some minor modifications and is *not* the original Software. Use of this code is still subject to the [ACM Software License Agreement](https://www.acm.org/publications/policies/software-copyright-notice). This grants the right to execute, copy, modify and distribute both the binary and source code solely for academic, research and other similar noncommercial uses. See the [LICENSE](./LICENSE) document for the remaining conditions. New additions are provided under terms of the permissive MIT License.
+> **_NOTE:_** The code available here is **_not_** the original Software and contains modifications (see differences below). Use of this code is still subject to the [ACM Software License Agreement](https://www.acm.org/publications/policies/software-copyright-notice). This agreement grants the right to execute, copy, modify and distribute both the binary and source code solely for academic, research, and other similar noncommercial uses. See the [LICENSE](./LICENSE) document for the remaining conditions. New files (i.e. those which are not present in the original package from Netlib) are provided under terms of the permissive MIT License.
 
 ## Routines
 
@@ -119,4 +118,4 @@ with parameters as follows (those preceded by an asterisk are altered by the rou
 
 ## Differences from the original software
 
-1. In routines `srcf`, `srcfob`, `srif`, and `srifco` the calls to the LINPACK routine `dtrco` (reciprocal condition number calculation) have been replaced with calls to the LAPACK routine `dtrcon`.
+* In routines `srcf`, `srcfob`, `srif`, and `srifco` the calls to the LINPACK routine `dtrco` for calculating the reciprocal condition number have been replaced with calls to the LAPACK routine `dtrcon`.

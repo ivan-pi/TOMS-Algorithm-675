@@ -136,37 +136,37 @@ contains
         call dgemv('n',n,m-i+1,1._dp,B(1,i),ldb,Q(i,i),1,0.0_dp,wrk(1,n+i),1)
       end do
     end if
-    print *, "Step 1"
-    do i = 1, n
-      print *, wrk(i,:)
-    end do
+    ! print *, "Step 1"
+    ! do i = 1, n
+    !   print *, wrk(i,:)
+    ! end do
 !
 !   Second part  -  Storing A x S in the (1,1) block of WRK.
 !
     do i = 1, n
       call dgemv('n',n,n-i+1,1._dp,A(1,i),lda,S(i,i),1,0._dp,wrk(1,i),1)
     end do
-    print *, "Step 2"
-    do i = 1, n
-      print *, wrk(i,:)
-    end do
-!
+!     print *, "Step 2"
+!     do i = 1, n
+!       print *, wrk(i,:)
+!     end do
+! !
 !   Step 3: triangularize the remaining (1,1) and (1,2) blocks of WRK.
 !
-    DO I = 1, N
-       I1 = I + 1
-       CALL F06FSF(N+M-I, WRK(I,I), WRK(I,I1), LDW, TOL, DZ1)
-       IF (I1 <= N) THEN
-          DO J = I1, N
-             CALL F06FUF(N+M-I, WRK(I,I1), LDW, DZ1, WRK(J,I), &
-                        WRK(J,I1), LDW)
-          END DO
-       END IF
-    END DO
-    print *, "Step 3"
     do i = 1, n
-      print *, wrk(i,:)
+      i1 = i + 1
+      call f06fsf(n+m-i,wrk(i,i),wrk(i,i1),ldw,tol,dz1)
+      if (i1 <= n) then
+        do j = i1, n
+          call f06fuf(n+m-i,wrk(i,i1),ldw,dz1,wrk(j,i), &
+                      wrk(j,i1),ldw)
+          end do
+      end if
     end do
+    ! print *, "Step 3"
+    ! do i = 1, n
+    !   print *, wrk(i,:)
+    ! end do
 
 !
 !   Output S.
